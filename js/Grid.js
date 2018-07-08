@@ -1,18 +1,16 @@
-'use strict'
 import Row from './Row.js'
 import Cell from './Cell.js'
 
 export default class Grid {
   constructor (rows, cols) {
-    this.grid = []
-    this.cols = cols
     this.currentCell = null
+    this.rowsArray = []
 
     this.cellSize = 50
-    this.tableElement = document.createElement('div')
-    this.tableElement.classList.add('container__wrap')
+    this.htmlElement = document.createElement('div')
+    this.htmlElement.classList.add('container__wrap')
 
-    this.addRows(rows)
+    this.addRows(rows, cols)
 
     this.removeRowBtn = document.querySelector('.container__remove_row')
     this.removeColBtn = document.querySelector('.container__remove_column')
@@ -23,31 +21,36 @@ export default class Grid {
   }
 
   init (selector) {
-    document.querySelector(selector).appendChild(this.tableElement)
+    document.querySelector(selector).appendChild(this.htmlElement)
 
-    this.tableElement.addEventListener('mouseenter', () => this.showButtons())
-    this.tableElement.addEventListener('mouseover', (e) => this.moveButtons(e))
-    this.tableElement.parentElement.parentElement.addEventListener('mouseleave', () => this.hideButtons())
-    this.tableElement.parentElement.parentElement.addEventListener('click', (e) => this.setAction(e))
+    this.htmlElement.addEventListener('mouseenter', () => this.showButtons())
+    this.htmlElement.addEventListener('mouseover', (e) => this.moveButtons(e))
+    this.htmlElement.parentElement.parentElement.addEventListener('mouseleave', () => this.hideButtons())
+    this.htmlElement.parentElement.parentElement.addEventListener('click', (e) => this.setAction(e))
 
     this.setGridSize()
   }
 
   moveButtons (event) {
-    if (event.target.dataset.isCell) this.currentCell = event.target
+    if (event.target.context instanceof Cell) this.currentCell = event.target
+
     this.removeColBtn.style.transform = `translateX(${event.target.offsetLeft}px)`
     this.removeRowBtn.style.transform = `translateY(${event.target.offsetTop}px)`
   }
 
   setAction (e) {
-    switch (e.target) {
-      case this.removeRowBtn: this.removeRow()
+    switch (e.target.id) {
+      case this.removeRowBtn.id:
+        this.removeRow()
         break
-      case this.removeColBtn: this.removeColumn()
+      case this.removeColBtn.id:
+        this.removeColumn()
         break
-      case this.addColBtn: this.addColumn()
+      case this.addColBtn.id:
+        this.addColumn()
         break
-      case this.addRowBtn: this.addRows()
+      case this.addRowBtn.id:
+        this.addRows()
         break
     }
 
@@ -55,41 +58,40 @@ export default class Grid {
     this.hideButtons()
   }
 
-  addRows (rows) {
-    if (!rows) rows = 1
+  addRows (rows = 1, cellsCount) {
+    cellsCount = cellsCount || this.rowsArray[0].cellsArray.length
 
     for (let i = 0; i < rows; i++) {
-      let row = new Row(this.cols)
-      this.grid.push(row)
-      this.tableElement.appendChild(row.htmlElement)
+      const row = new Row(cellsCount)
+
+      this.rowsArray.push(row)
+      this.htmlElement.appendChild(row.htmlElement)
     }
   }
 
   removeRow () {
-    let rowIndex = [].indexOf.call(this.tableElement.children, this.currentCell.parentElement)
-    this.tableElement.removeChild(this.currentCell.parentElement)
-    this.grid.splice(rowIndex, 1)
+    const rowIndex = [].indexOf.call(this.htmlElement.children, this.currentCell.parentElement)
+
+    this.htmlElement.removeChild(this.currentCell.parentElement)
+    this.rowsArray.splice(rowIndex, 1)
   }
 
   addColumn () {
-    for (let row of this.grid) {
-      let cell = new Cell()
-      row.cells.push(cell)
-      row.htmlElement.appendChild(cell.htmlElement)
-    }
+    this.rowsArray.forEach(row => {
+      const cell = new Cell()
 
-    this.cols++
+      row.cellsArray.push(cell)
+      row.htmlElement.appendChild(cell.htmlElement)
+    })
   }
 
   removeColumn () {
-    let colIndex = [].indexOf.call(this.currentCell.parentNode.children, this.currentCell)
+    const colIndex = [].indexOf.call(this.currentCell.parentNode.children, this.currentCell)
 
-    for (let row of this.grid) {
+    this.rowsArray.forEach(row => {
       row.htmlElement.removeChild(row.htmlElement.children[colIndex])
-      row.cells.splice(colIndex, 1)
-    }
-
-    --this.cols
+      row.cellsArray.splice(colIndex, 1)
+    })
   }
 
   hideButtons () {
@@ -98,22 +100,22 @@ export default class Grid {
   }
 
   showButtons () {
-    this.grid.length <= 1
+    this.rowsArray.length <= 1
       ? this.removeRowBtn.classList.add('hide')
       : this.removeRowBtn.classList.remove('hide')
-    this.cols <= 1
+    this.rowsArray[0].cellsArray.length <= 1
       ? this.removeColBtn.classList.add('hide')
       : this.removeColBtn.classList.remove('hide')
   }
 
   setGridSize () {
-    let gridBox = this.tableElement.parentElement
+    const gridBox = this.htmlElement.parentElement
     gridBox.parentElement.style.width = `${gridBox.offsetWidth + this.cellSize + this.cellSize}px`
     gridBox.parentElement.style.height = `${gridBox.offsetHeight + this.cellSize + this.cellSize}px`
   }
 }
 
 (function () {
-  let app = new Grid(4, 4)
+  const app = new Grid(4, 4)
   app.init('.app-grid-container')
 })()
