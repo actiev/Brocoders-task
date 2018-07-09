@@ -1,4 +1,3 @@
-'use strict'
 import Cell from './Cell.js'
 
 export default class Row {
@@ -10,7 +9,7 @@ export default class Row {
 
   addCells (cells) {
     for (let i = 0; i < cells; i++) {
-      const  cell = new Cell()
+      const cell = new Cell()
 
       this.cellsArray.push(cell)
       this.htmlElement.appendChild(cell.htmlElement)

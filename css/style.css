@@ -1,12 +1,12 @@
-.app {
-  margin-top: 15%;
+body {
+  padding-top: 15%;
 }
 
-.app-grid {
+.app {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: auto;
+  margin: 0px auto;
 }
 
 .app-grid-container {
@@ -17,6 +17,8 @@
 .cell {
   background: #46aae5;
   border: 1px solid #fff;
+  position: absolute;
+  z-index: 10;
 }
 
 .hide {
@@ -67,8 +69,7 @@
 
 .container__wrap {
   border: 1px solid #fff;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .container__wrap div{
@@ -104,6 +105,13 @@
 .container__remove_row:hover, 
 .container__remove_row:focus {
   background: #d9434c;
+}
+
+.move {
+  cursor: move;
+  opacity: 0.5;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  z-index: 10;
 }
 
 
